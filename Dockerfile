@@ -27,7 +27,7 @@ COPY . .
 
 RUN npm install
 
-# Let Puppeteer know where Chromium is
+# Tell Venom/Puppeteer where Chromium is
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Render uses port 10000
