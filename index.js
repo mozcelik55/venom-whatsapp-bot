@@ -8,11 +8,11 @@ const port = process.env.PORT || 3000;
 let clientInstance = null;
 let qrCodeImage = '';
 
-// 🔁 Always reset session on start
+// 🔁 Always reset session to force QR
 const sessionFolder = path.resolve(__dirname, 'fresh');
 try {
   fs.rmSync(sessionFolder, { recursive: true, force: true });
-  console.log('🗑️ Deleted old session folder to force QR');
+  console.log('🗑️ Deleted old session folder to force new QR');
 } catch (err) {
   console.log('ℹ️ No session folder found.');
 }
@@ -39,15 +39,7 @@ venom
     catchQR: (base64Qr, asciiQR) => {
       qrCodeImage = `data:image/png;base64,${base64Qr}`;
       console.log('\n📲 Scan this QR from terminal:\n');
-      console.log(asciiQR); // ← Terminal-based QR scan
-
-      // Optional: Save QR image as file (only works if Fly allows it)
-      try {
-        fs.writeFileSync('./qr.png', Buffer.from(base64Qr, 'base64'));
-        console.log('💾 Saved QR to qr.png');
-      } catch (e) {
-        console.log('⚠️ Failed to write qr.png (Fly might block write access)');
-      }
+      console.log(asciiQR);
     },
     statusFind: (status) => {
       console.log('📡 WhatsApp status:', status);
@@ -61,28 +53,18 @@ venom
     console.error('❌ Venom startup error:', err);
   });
 
-// 🔗 Show QR or status
+// 🔗 Homepage: QR or status
 app.get('/', (req, res) => {
   if (qrCodeImage) {
     res.send(`
       <h2>📲 Scan this QR Code to connect WhatsApp</h2>
       <img src="${qrCodeImage}" alt="QR Code" style="max-width:300px;" />
-      <p>If the image fails to load, check Fly.io logs to scan the ASCII QR manually.</p>
+      <p>If image fails, check Fly.io logs to scan the terminal QR manually.</p>
     `);
   } else if (!clientInstance) {
-    res.send('<h2>❌ WhatsApp client not ready. Restart may be needed.</h2>');
+    res.send('<h2>❌ WhatsApp client not ready. Please restart the machine.</h2>');
   } else {
     res.send('<h2>✅ WhatsApp is connected!</h2>');
-  }
-});
-
-// 🖼️ Serve saved QR (optional)
-app.get('/qr.png', (req, res) => {
-  const qrPath = path.join(__dirname, 'qr.png');
-  if (fs.existsSync(qrPath)) {
-    res.sendFile(qrPath);
-  } else {
-    res.status(404).send('❌ QR image not found.');
   }
 });
 
@@ -107,7 +89,7 @@ app.get('/send', async (req, res) => {
   }
 });
 
-// 🚀 Start server
+// 🟢 Start Express server
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
 });
