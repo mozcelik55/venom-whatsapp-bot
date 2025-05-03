@@ -3,10 +3,6 @@ const { create } = require('venom-bot');
 
 const app = express();
 const port = process.env.PORT || 3000;
-app.listen(port, '0.0.0.0', () => {
-  console.log(`🚀 Server running on http://0.0.0.0:${port}`);
-});
-
 
 let client;
 let qrCodeBase64 = '';
@@ -19,7 +15,7 @@ create(
     disableWelcome: true,
     updatesLog: false,
     logQR: false,
-    deleteSession: true // ensures QR is shown every time (no reuse)
+    deleteSession: true
   },
   (base64Qrimg, asciiQR) => {
     qrCodeBase64 = base64Qrimg;
@@ -64,7 +60,7 @@ app.get('/send', async (req, res) => {
   }
 });
 
-// ✅ ONLY declare 'port' once — this is already at the top
+// ✅ Only ONE app.listen
 app.listen(port, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://0.0.0.0:${port}`);
 });
