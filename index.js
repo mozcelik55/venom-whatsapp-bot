@@ -7,18 +7,19 @@ const port = process.env.PORT || 3000;
 let client;
 let qrCodeBase64 = '';
 
+// Initialize Venom
 create(
   {
     session: 'session-name',
-    headless: 'new', // ✅ avoids deprecation warning
-    disableSpins: true,
+    headless: 'new', // ✅ avoids Puppeteer deprecation warning
     disableWelcome: true,
+    disableSpins: true,
     updatesLog: false,
     logQR: false,
-    deleteSession: true
+    deleteSession: true // ✅ force new QR on every restart
   },
   (base64Qrimg, asciiQR) => {
-    qrCodeBase64 = base64Qrimg;
+    qrCodeBase64 = `data:image/png;base64,${base64Qrimg}`;
     console.log('📷 QR captured and stored in memory.');
   }
 )
@@ -30,6 +31,7 @@ create(
     console.error('❌ WhatsApp init error:', error);
   });
 
+// Show QR or status
 app.get('/', (req, res) => {
   if (qrCodeBase64) {
     res.send(`
@@ -46,6 +48,7 @@ app.get('/', (req, res) => {
   }
 });
 
+// Send message
 app.get('/send', async (req, res) => {
   const { to, message } = req.query;
   if (!client) return res.status(503).send('❌ Client not ready yet.');
@@ -60,7 +63,7 @@ app.get('/send', async (req, res) => {
   }
 });
 
-// ✅ Only ONE app.listen
+// Start server
 app.listen(port, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://0.0.0.0:${port}`);
 });
