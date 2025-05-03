@@ -15,6 +15,7 @@ create(
     disableWelcome: true,
     updatesLog: false,
     logQR: false,
+    deleteSession: true // <-- force fresh QR session
   },
   (base64Qrimg, asciiQR) => {
     qrCodeBase64 = base64Qrimg;
