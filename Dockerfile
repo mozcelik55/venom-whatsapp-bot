@@ -1,6 +1,6 @@
 FROM node:18-slim
 
-# Install Chromium and dependencies
+# Install Chromium and its dependencies
 RUN apt-get update && apt-get install -y \
     chromium \
     ca-certificates \
@@ -27,10 +27,10 @@ COPY . .
 
 RUN npm install
 
-# Tell Puppeteer/Venom where Chromium is
+# Let Puppeteer know where Chromium is
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Use Render's default port
+# Render uses port 10000
 ENV PORT=10000
 EXPOSE 10000
 
