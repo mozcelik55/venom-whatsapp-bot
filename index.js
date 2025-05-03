@@ -10,7 +10,7 @@ let qrCodeBase64 = '';
 create(
   {
     session: 'session-name',
-    headless: true,
+    headless: 'new', // ✅ avoids deprecation warning
     disableSpins: true,
     disableWelcome: true,
     updatesLog: false,
