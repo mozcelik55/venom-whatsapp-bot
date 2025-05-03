@@ -8,6 +8,21 @@ let qrCodeImage = '';
 
 venom.create({
   session: 'whatsapp-session',
+  headless: true,
+  puppeteerOptions: {
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-gpu',
+      '--disable-dev-shm-usage',
+      '--disable-extensions',
+      '--disable-infobars',
+      '--window-position=0,0',
+      '--ignore-certifcate-errors',
+      '--ignore-certifcate-errors-spki-list',
+      '--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36'
+    ]
+  },
   catchQR: (base64Qr) => {
     qrCodeImage = base64Qr;
     console.log('QR code updated!');
