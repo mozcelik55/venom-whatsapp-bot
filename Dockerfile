@@ -1,7 +1,8 @@
 FROM node:18-slim
 
+# Install Chromium and dependencies
 RUN apt-get update && apt-get install -y \
-    wget \
+    chromium \
     ca-certificates \
     fonts-liberation \
     libappindicator3-1 \
@@ -18,14 +19,15 @@ RUN apt-get update && apt-get install -y \
     libxdamage1 \
     libxrandr2 \
     xdg-utils \
-    chromium \
- && apt-get clean
+ && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
 COPY . .
+
 RUN npm install
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-EXPOSE 3000
+EXPOSE 10000
 CMD ["node", "index.js"]
