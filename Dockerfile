@@ -1,6 +1,6 @@
 FROM node:18-slim
 
-# Install Chromium
+# Install Chromium dependencies
 RUN apt-get update && apt-get install -y \
     wget \
     ca-certificates \
@@ -20,18 +20,24 @@ RUN apt-get update && apt-get install -y \
     libxrandr2 \
     xdg-utils \
     chromium \
- && apt-get clean
+    --no-install-recommends && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Copy files and install dependencies
+# Copy project files
 COPY . .
+
+# Install dependencies
 RUN npm install
 
-# Set environment
+# Environment for venom (use Puppeteer's Chromium)
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Expose port and start
+# Expose app port
 EXPOSE 3000
+
+# Start app
 CMD ["node", "index.js"]
