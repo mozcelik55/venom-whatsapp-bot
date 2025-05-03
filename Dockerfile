@@ -27,7 +27,11 @@ COPY . .
 
 RUN npm install
 
+# Tell Puppeteer/Venom where Chromium is
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
+# Use Render's default port
+ENV PORT=10000
 EXPOSE 10000
+
 CMD ["node", "index.js"]
