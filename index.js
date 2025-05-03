@@ -46,7 +46,13 @@ venom
 app.get('/', (req, res) => {
   if (qrCodeImage) {
     const imgTag = `<img src="data:image/png;base64,${qrCodeImage}" alt="QR Code"/>`;
-    res.send(`<h2>Scan this QR Code with WhatsApp</h2>${imgTag}`);
+   res.send(`
+  <h2>📲 Scan this QR Code with WhatsApp</h2>
+  ${qrCodeImage
+    ? `<img src="${qrCodeImage}" alt="QR Code" style="max-width:300px;" />`
+    : '<p>QR code not ready. Please refresh.</p>'}
+`);
+
   } else {
     res.send('<h2>✅ WhatsApp is connected!</h2>');
   }
