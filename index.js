@@ -20,7 +20,7 @@ try {
 // 🚀 Create WhatsApp client
 venom
   .create({
-    session: 'fresh',
+  session: 'fresh-' + Date.now(), // always generates a new session
     headless: true,
     executablePath: '/usr/bin/chromium',
     puppeteerOptions: {
