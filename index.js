@@ -1,6 +1,5 @@
 const venom = require('venom-bot');
 const express = require('express');
-const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -8,18 +7,12 @@ const port = process.env.PORT || 3000;
 let clientInstance = null;
 let qrCodeImage = '';
 
-// 🧹 Force delete old session folder to show QR every time
-try {
-  fs.rmSync('./session-name', { recursive: true, force: true });
-  console.log('🗑 Old session removed. QR will regenerate.');
-} catch (err) {
-  console.log('⚠️ No session folder found.');
-}
+// 🧠 Use a unique session name every time to force new QR
+const sessionName = 'session-' + Date.now();
 
-// 👇 Create WhatsApp client
 venom
   .create({
-    session: 'session-name',
+    session: sessionName,
     headless: true,
     executablePath: '/usr/bin/chromium',
     puppeteerOptions: {
@@ -41,7 +34,7 @@ venom
       console.log(asciiQR);
     },
     statusFind: (statusSession) => {
-      console.log('📡 WhatsApp Status:', statusSession);
+      console.log('📡 WhatsApp status:', statusSession);
     },
   })
   .then((client) => {
@@ -49,22 +42,22 @@ venom
     console.log('✅ WhatsApp client is ready!');
   })
   .catch((error) => {
-    console.error('❌ Error starting WhatsApp:', error);
+    console.error('❌ Venom startup error:', error);
   });
 
-// 🔗 Homepage: Show QR or Connected
+// 🔗 Homepage to show QR or connection status
 app.get('/', (req, res) => {
   if (qrCodeImage) {
     res.send(`
-      <h2>📲 Scan QR Code to connect WhatsApp</h2>
+      <h2>📲 Scan this QR Code with WhatsApp</h2>
       <img src="${qrCodeImage}" alt="QR Code" style="max-width:300px;" />
     `);
   } else {
-    res.send('<h2>✅ WhatsApp is connected or QR not yet generated.</h2>');
+    res.send('<h2>✅ WhatsApp is connected or QR not generated yet.</h2>');
   }
 });
 
-// ✉️ Send message via /send?to=61412345678&message=Hi
+// ✉️ Send WhatsApp message via /send?to=61412345678&message=Hello
 app.get('/send', async (req, res) => {
   if (!clientInstance) {
     return res.status(503).send('❌ WhatsApp client not ready');
@@ -80,12 +73,11 @@ app.get('/send', async (req, res) => {
     await clientInstance.sendText(`${to}@c.us`, message);
     res.send('✅ Message sent!');
   } catch (err) {
-    console.error('❌ Failed to send:', err);
-    res.status(500).send('❌ Error sending message');
+    console.error('❌ Failed to send message:', err);
+    res.status(500).send('❌ Failed to send message.');
   }
 });
 
-// 🖥 Start server
 app.listen(port, () => {
-  console.log(`🚀 Server listening on port ${port}`);
+  console.log(`🚀 Server is running on port ${port}`);
 });
