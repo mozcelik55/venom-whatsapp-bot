@@ -8,18 +8,16 @@ const port = process.env.PORT || 3000;
 let clientInstance = null;
 let qrCodeImage = '';
 
-// ✅ Always use a clean session called 'fresh'
+// 🔁 Always use same session folder but delete it every time (to force QR)
 const sessionFolder = path.resolve(__dirname, 'fresh');
-
-// 🧹 Delete old session folder to force QR generation
 try {
   fs.rmSync(sessionFolder, { recursive: true, force: true });
-  console.log('🗑️ Deleted previous session folder: fresh');
+  console.log('🗑️ Deleted old session folder to force QR');
 } catch (err) {
-  console.log('No old session folder found');
+  console.log('ℹ️ No session folder to delete.');
 }
 
-// 🚀 Create WhatsApp bot
+// 🚀 Create Venom Bot
 venom
   .create({
     session: 'fresh',
@@ -41,7 +39,7 @@ venom
     catchQR: (base64Qr, asciiQR) => {
       qrCodeImage = `data:image/png;base64,${base64Qr}`;
       console.log('\n📲 Scan this QR code:\n');
-      console.log(asciiQR); // ASCII backup in logs
+      console.log(asciiQR);
     },
     statusFind: (status) => {
       console.log('📡 WhatsApp status:', status);
@@ -49,25 +47,27 @@ venom
   })
   .then((client) => {
     clientInstance = client;
-    console.log('✅ WhatsApp client is ready!');
+    console.log('✅ WhatsApp is ready!');
   })
-  .catch((error) => {
-    console.error('❌ Venom bot error:', error);
+  .catch((err) => {
+    console.error('❌ Venom startup error:', err);
   });
 
-// 🖼️ Show QR code or status
+// 🔗 Home page shows QR or status
 app.get('/', (req, res) => {
   if (qrCodeImage) {
     res.send(`
-      <h2>📲 Scan QR to connect WhatsApp</h2>
+      <h2>📲 Scan this QR Code to connect WhatsApp</h2>
       <img src="${qrCodeImage}" alt="QR Code" style="max-width:300px;" />
     `);
+  } else if (!clientInstance) {
+    res.send('<h2>❌ WhatsApp client not ready. Please restart the machine.</h2>');
   } else {
-    res.send('<h2>✅ WhatsApp is connected or QR not generated yet.</h2>');
+    res.send('<h2>✅ WhatsApp is connected!</h2>');
   }
 });
 
-// ✉️ Send message via GET /send?to=61412345678&message=Hello
+// ✉️ Send message via /send?to=61412345678&message=Hello
 app.get('/send', async (req, res) => {
   if (!clientInstance) {
     return res.status(503).send('❌ WhatsApp client not ready');
@@ -83,12 +83,12 @@ app.get('/send', async (req, res) => {
     await clientInstance.sendText(`${to}@c.us`, message);
     res.send('✅ Message sent!');
   } catch (err) {
-    console.error('❌ Failed to send message:', err);
-    res.status(500).send('❌ Could not send message');
+    console.error('❌ Message send error:', err);
+    res.status(500).send('❌ Failed to send message');
   }
 });
 
-// 🚀 Start Express server
+// Start server
 app.listen(port, () => {
-  console.log(`🚀 Server is running on port ${port}`);
+  console.log(`🚀 Server running on port ${port}`);
 });
